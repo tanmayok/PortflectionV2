@@ -19,6 +19,7 @@ model User {
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
+  subscriptionTier String @default("free") // 'free' | 'premium'
   premium       Boolean   @default(false)
   role          String    @default("user")
   banned        Boolean   @default(false)
@@ -74,6 +75,11 @@ model Verification {
 model Portfolio {
   id               String   @id @default(cuid()) @map("_id")
   userId           String
+  portfolioId      String   @unique @default(cuid())
+  publishedUrl     String?  @unique
+  isPublished      Boolean  @default(false)
+  status           String   @default("draft") // 'draft' | 'published' | 'unpublished'
+  version          Int      @default(1)
   portfolioType    String @default("developer")   // e.g. 'developer', 'designer', etc.
   name             String
   title            String
@@ -103,7 +109,9 @@ model Portfolio {
   skills           Skill[]
   educations       Education[]
 
-  isPublished      Boolean  @default(false)
+  
+  @@index([publishedUrl])
+  @@index([userId, status])
 }
 
 model Project {

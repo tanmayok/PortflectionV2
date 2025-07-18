@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { useState, useCallback, useReducer, useEffect } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -28,6 +28,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -43,8 +47,12 @@ import {
   User,
   Briefcase,
   Code,
-  GraduationCap,
-  Mail,
+  Play,
+  Share2,
+  Globe,
+  ExternalLink,
+  X,
+  Edit
   Star,
   CheckCircle,
   Loader2,
