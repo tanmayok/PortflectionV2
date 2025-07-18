@@ -1,11 +1,11 @@
 "use client";
 
-import { UnifiedPortfolioBuilder } from "@/components/portfolio-builder/UnifiedPortfolioBuilder";
+import { WebflowStyleBuilder } from "@/components/portfolio-builder/WebflowStyleBuilder";
 
 export default function PortfolioBuilderPage() {
   return (
     <div className="h-screen">
-      <UnifiedPortfolioBuilder />
+      <WebflowStyleBuilder />
     </div>
   );
 }
