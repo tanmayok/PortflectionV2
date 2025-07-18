@@ -6,15 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Sparkles, 
-  Square, 
-  Circle, 
-  Zap,
-  Layers,
-  Blur,
-  Clock
-} from 'lucide-react';
+import { Sparkles, Square, Circle, Zap, Layers, Bluetooth as Blur, Clock } from 'lucide-react';
 import { EffectsConfig } from '@/types/theme-system';
 
 interface EffectsControlsProps {
