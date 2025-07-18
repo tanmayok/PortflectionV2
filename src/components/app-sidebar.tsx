@@ -60,6 +60,7 @@ const navItems = [
     items: [
       { title: "My Portfolios", url: "/dashboard/my-portfolios" },
       { title: "Create New", url: "/dashboard/portfolios/new" },
+      { title: "Portfolio Builder", url: "/dashboard/portfolio-builder" },
     ],
   },
   {
