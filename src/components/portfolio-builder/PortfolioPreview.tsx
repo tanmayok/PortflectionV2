@@ -1,24 +1,25 @@
 "use client";
 
-import { useMemo } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Monitor, 
-  Tablet, 
-  Smartphone, 
-  Grid3X3, 
+import { useMemo } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Monitor,
+  Tablet,
+  Smartphone,
+  Grid3X3,
   Ruler,
   Eye,
-  Code
-} from 'lucide-react';
-import { 
-  ThemeConfig, 
-  PortfolioSection, 
-  SectionConfig, 
-  CustomizationState 
-} from '@/types/theme-system';
+  Code,
+  LayoutDashboard,
+} from "lucide-react";
+import {
+  ThemeConfig,
+  PortfolioSection,
+  SectionConfig,
+  CustomizationState,
+} from "@/types/theme-system";
 
 interface PortfolioPreviewProps {
   theme: ThemeConfig;
@@ -31,18 +32,18 @@ export const PortfolioPreview = ({
   theme,
   sections,
   sectionConfigs,
-  customizationState
+  customizationState,
 }: PortfolioPreviewProps) => {
   const deviceDimensions = {
-    desktop: { width: '100%', height: '100%' },
-    tablet: { width: '768px', height: '1024px' },
-    mobile: { width: '375px', height: '812px' }
+    desktop: { width: "100%", height: "100%" },
+    tablet: { width: "768px", height: "1024px" },
+    mobile: { width: "375px", height: "812px" },
   };
 
   const currentDimensions = deviceDimensions[customizationState.device];
 
   const getSectionConfig = (sectionConfigId: string) => {
-    return sectionConfigs.find(config => config.id === sectionConfigId);
+    return sectionConfigs.find((config) => config.id === sectionConfigId);
   };
 
   const renderSection = (section: PortfolioSection) => {
@@ -55,17 +56,21 @@ export const PortfolioPreview = ({
       <div
         key={section.id}
         className={`relative transition-all duration-200 ${
-          isSelected ? 'ring-2 ring-primary ring-offset-2' : ''
-        } ${customizationState.mode === 'edit' ? 'hover:ring-1 hover:ring-muted-foreground/50' : ''}`}
+          isSelected ? "ring-2 ring-primary ring-offset-2" : ""
+        } ${
+          customizationState.mode === "edit"
+            ? "hover:ring-1 hover:ring-muted-foreground/50"
+            : ""
+        }`}
         style={{
           backgroundColor: theme.colors.surface,
           padding: theme.spacing.sections.md,
           borderRadius: theme.effects.borderRadius.md,
-          marginBottom: theme.spacing.sections.sm
+          marginBottom: theme.spacing.sections.sm,
         }}
       >
         {/* Section overlay for edit mode */}
-        {customizationState.mode === 'edit' && (
+        {customizationState.mode === "edit" && (
           <div className="absolute top-2 left-2 z-10">
             <Badge variant="secondary" className="text-xs">
               {config.name}
@@ -75,29 +80,29 @@ export const PortfolioPreview = ({
 
         {/* Mock section content */}
         <div className="space-y-4">
-          {config.type === 'hero' && (
+          {config.type === "hero" && (
             <div className="text-center space-y-4">
-              <div 
+              <div
                 className="w-24 h-24 rounded-full mx-auto"
                 style={{ backgroundColor: theme.colors.primary }}
               />
-              <h1 
+              <h1
                 className="text-4xl font-bold"
-                style={{ 
+                style={{
                   color: theme.colors.text.primary,
-                  fontFamily: theme.typography.fontFamilies.heading
+                  fontFamily: theme.typography.fontFamilies.heading,
                 }}
               >
-                {section.content.name || 'Your Name'}
+                {section.content.name || "Your Name"}
               </h1>
-              <p 
+              <p
                 className="text-xl"
-                style={{ 
+                style={{
                   color: theme.colors.text.secondary,
-                  fontFamily: theme.typography.fontFamilies.body
+                  fontFamily: theme.typography.fontFamilies.body,
                 }}
               >
-                {section.content.title || 'Your Professional Title'}
+                {section.content.title || "Your Professional Title"}
               </p>
               <Button style={{ backgroundColor: theme.colors.primary }}>
                 Get In Touch
@@ -105,32 +110,33 @@ export const PortfolioPreview = ({
             </div>
           )}
 
-          {config.type === 'about' && (
+          {config.type === "about" && (
             <div className="space-y-4">
-              <h2 
+              <h2
                 className="text-2xl font-bold"
-                style={{ 
+                style={{
                   color: theme.colors.text.primary,
-                  fontFamily: theme.typography.fontFamilies.heading
+                  fontFamily: theme.typography.fontFamilies.heading,
                 }}
               >
                 About Me
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <p 
-                    style={{ 
+                  <p
+                    style={{
                       color: theme.colors.text.secondary,
-                      fontFamily: theme.typography.fontFamilies.body
+                      fontFamily: theme.typography.fontFamilies.body,
                     }}
                   >
-                    {section.content.description || 'Your professional story and background...'}
+                    {section.content.description ||
+                      "Your professional story and background..."}
                   </p>
                 </div>
                 <div className="space-y-2">
-                  {['Skill 1', 'Skill 2', 'Skill 3'].map((skill, index) => (
+                  {["Skill 1", "Skill 2", "Skill 3"].map((skill, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      <div 
+                      <div
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: theme.colors.accent }}
                       />
@@ -144,32 +150,35 @@ export const PortfolioPreview = ({
             </div>
           )}
 
-          {config.type === 'projects' && (
+          {config.type === "projects" && (
             <div className="space-y-6">
-              <h2 
+              <h2
                 className="text-2xl font-bold"
-                style={{ 
+                style={{
                   color: theme.colors.text.primary,
-                  fontFamily: theme.typography.fontFamilies.heading
+                  fontFamily: theme.typography.fontFamilies.heading,
                 }}
               >
                 Projects
               </h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3].map((project) => (
-                  <Card key={project} style={{ backgroundColor: theme.colors.background }}>
+                  <Card
+                    key={project}
+                    style={{ backgroundColor: theme.colors.background }}
+                  >
                     <CardContent className="p-4">
-                      <div 
+                      <div
                         className="w-full h-32 rounded mb-4"
-                        style={{ backgroundColor: theme.colors.primary + '20' }}
+                        style={{ backgroundColor: theme.colors.primary + "20" }}
                       />
-                      <h3 
+                      <h3
                         className="font-semibold mb-2"
                         style={{ color: theme.colors.text.primary }}
                       >
                         Project {project}
                       </h3>
-                      <p 
+                      <p
                         className="text-sm"
                         style={{ color: theme.colors.text.secondary }}
                       >
@@ -182,21 +191,21 @@ export const PortfolioPreview = ({
             </div>
           )}
 
-          {config.type === 'contact' && (
+          {config.type === "contact" && (
             <div className="text-center space-y-4">
-              <h2 
+              <h2
                 className="text-2xl font-bold"
-                style={{ 
+                style={{
                   color: theme.colors.text.primary,
-                  fontFamily: theme.typography.fontFamilies.heading
+                  fontFamily: theme.typography.fontFamilies.heading,
                 }}
               >
                 Get In Touch
               </h2>
-              <p 
-                style={{ 
+              <p
+                style={{
                   color: theme.colors.text.secondary,
-                  fontFamily: theme.typography.fontFamilies.body
+                  fontFamily: theme.typography.fontFamilies.body,
                 }}
               >
                 Ready to work together? Let's create something amazing.
@@ -205,8 +214,8 @@ export const PortfolioPreview = ({
                 <Button style={{ backgroundColor: theme.colors.primary }}>
                   Send Message
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   style={{ borderColor: theme.colors.border }}
                 >
                   Download CV
@@ -218,14 +227,14 @@ export const PortfolioPreview = ({
 
         {/* Grid overlay */}
         {customizationState.showGrid && (
-          <div 
+          <div
             className="absolute inset-0 pointer-events-none opacity-20"
             style={{
               backgroundImage: `
                 linear-gradient(to right, ${theme.colors.primary} 1px, transparent 1px),
                 linear-gradient(to bottom, ${theme.colors.primary} 1px, transparent 1px)
               `,
-              backgroundSize: '20px 20px'
+              backgroundSize: "20px 20px",
             }}
           />
         )}
@@ -233,7 +242,7 @@ export const PortfolioPreview = ({
         {/* Spacing overlay */}
         {customizationState.showSpacing && (
           <div className="absolute inset-0 pointer-events-none">
-            <div 
+            <div
               className="absolute inset-0 border-2 border-dashed"
               style={{ borderColor: theme.colors.accent }}
             />
@@ -250,21 +259,24 @@ export const PortfolioPreview = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h3 className="font-semibold">Preview</h3>
-            
+
             {/* Device selector */}
             <div className="flex rounded-lg border p-1">
               {[
-                { id: 'desktop', icon: Monitor },
-                { id: 'tablet', icon: Tablet },
-                { id: 'mobile', icon: Smartphone }
+                { id: "desktop", icon: Monitor },
+                { id: "tablet", icon: Tablet },
+                { id: "mobile", icon: Smartphone },
               ].map(({ id, icon: Icon }) => (
                 <Button
                   key={id}
-                  variant={customizationState.device === id ? 'default' : 'ghost'}
+                  variant={
+                    customizationState.device === id ? "default" : "ghost"
+                  }
                   size="sm"
-                  onClick={() => customizationState.device !== id && 
+                  onClick={() =>
+                    customizationState.device !== id &&
                     // This would trigger the device change
-                    console.log('Change device to:', id)
+                    console.log("Change device to:", id)
                   }
                   className="h-8 w-8 p-0"
                 >
@@ -278,7 +290,9 @@ export const PortfolioPreview = ({
             {/* View mode toggle */}
             <div className="flex rounded-lg border p-1">
               <Button
-                variant={customizationState.mode === 'edit' ? 'default' : 'ghost'}
+                variant={
+                  customizationState.mode === "edit" ? "default" : "ghost"
+                }
                 size="sm"
                 className="h-8"
               >
@@ -286,7 +300,9 @@ export const PortfolioPreview = ({
                 Edit
               </Button>
               <Button
-                variant={customizationState.mode === 'preview' ? 'default' : 'ghost'}
+                variant={
+                  customizationState.mode === "preview" ? "default" : "ghost"
+                }
                 size="sm"
                 className="h-8"
               >
@@ -297,15 +313,15 @@ export const PortfolioPreview = ({
 
             {/* Helper toggles */}
             <Button
-              variant={customizationState.showGrid ? 'default' : 'ghost'}
+              variant={customizationState.showGrid ? "default" : "ghost"}
               size="sm"
               className="h-8 w-8 p-0"
             >
               <Grid3X3 className="w-4 h-4" />
             </Button>
-            
+
             <Button
-              variant={customizationState.showSpacing ? 'default' : 'ghost'}
+              variant={customizationState.showSpacing ? "default" : "ghost"}
               size="sm"
               className="h-8 w-8 p-0"
             >
@@ -323,32 +339,37 @@ export const PortfolioPreview = ({
             style={{
               width: currentDimensions.width,
               height: currentDimensions.height,
-              maxHeight: customizationState.device === 'desktop' ? 'none' : currentDimensions.height,
-              borderRadius: customizationState.device !== 'desktop' ? '12px' : '0'
+              maxHeight:
+                customizationState.device === "desktop"
+                  ? "none"
+                  : currentDimensions.height,
+              borderRadius:
+                customizationState.device !== "desktop" ? "12px" : "0",
             }}
           >
-            <div 
+            <div
               className="min-h-full"
               style={{
                 backgroundColor: theme.colors.background,
                 fontFamily: theme.typography.fontFamilies.body,
-                color: theme.colors.text.primary
+                color: theme.colors.text.primary,
               }}
             >
               {sections.length > 0 ? (
-                sections
-                  .sort((a, b) => a.order - b.order)
-                  .map(renderSection)
+                sections.sort((a, b) => a.order - b.order).map(renderSection)
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center space-y-4">
                     <div className="w-16 h-16 rounded-full bg-muted mx-auto flex items-center justify-center">
-                      <Layout className="w-8 h-8 text-muted-foreground" />
+                      <LayoutDashboard className="w-8 h-8 text-muted-foreground" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold mb-2">No sections added</h3>
+                      <h3 className="text-lg font-semibold mb-2">
+                        No sections added
+                      </h3>
                       <p className="text-muted-foreground">
-                        Add sections from the builder to see your portfolio come to life
+                        Add sections from the builder to see your portfolio come
+                        to life
                       </p>
                     </div>
                   </div>
