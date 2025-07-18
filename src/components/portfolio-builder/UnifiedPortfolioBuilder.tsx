@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useReducer, useEffect, useRef } from "react";
+import { useState, useCallback, useReducer, useEffect } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -52,7 +52,7 @@ import {
   Globe,
   ExternalLink,
   X,
-  Edit,
+  Edit
   Star,
   CheckCircle,
   Loader2,
@@ -62,8 +62,6 @@ import {
   Image,
   Layout,
   Palette,
-  GraduationCap,
-  Mail,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -511,272 +509,6 @@ const ComponentSelectorModal = ({
   );
 };
 
-// Dynamic Section Editor Component
-const SectionEditor = ({ 
-  section, 
-  onUpdate, 
-  onClose 
-}: {
-  section: PortfolioSection;
-  onUpdate: (updates: Partial<PortfolioSection>) => void;
-  onClose: () => void;
-}) => {
-  const [content, setContent] = useState(section.content);
-  const [title, setTitle] = useState(section.title || '');
-
-  const handleContentUpdate = (field: string, value: any) => {
-    const updatedContent = { ...content, [field]: value };
-    setContent(updatedContent);
-    onUpdate({ content: updatedContent });
-  };
-
-  const handleTitleUpdate = (newTitle: string) => {
-    setTitle(newTitle);
-    onUpdate({ title: newTitle });
-  };
-
-  // Dynamic project links management
-  const addProjectLink = () => {
-    const currentLinks = content.links || [];
-    const newLinks = [...currentLinks, { label: '', url: '', icon: '' }];
-    handleContentUpdate('links', newLinks);
-  };
-
-  const updateProjectLink = (index: number, field: string, value: string) => {
-    const currentLinks = content.links || [];
-    const updatedLinks = currentLinks.map((link, i) => 
-      i === index ? { ...link, [field]: value } : link
-    );
-    handleContentUpdate('links', updatedLinks);
-  };
-
-  const removeProjectLink = (index: number) => {
-    const currentLinks = content.links || [];
-    const updatedLinks = currentLinks.filter((_, i) => i !== index);
-    handleContentUpdate('links', updatedLinks);
-  };
-
-  // Dynamic tags management
-  const addTag = (newTag: string) => {
-    if (!newTag.trim()) return;
-    const currentTags = content.tags || [];
-    const updatedTags = [...currentTags, newTag.trim()];
-    handleContentUpdate('tags', updatedTags);
-  };
-
-  const removeTag = (index: number) => {
-    const currentTags = content.tags || [];
-    const updatedTags = currentTags.filter((_, i) => i !== index);
-    handleContentUpdate('tags', updatedTags);
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Edit Section</h3>
-        <Button variant="ghost" size="sm" onClick={onClose}>
-          <X className="w-4 h-4" />
-        </Button>
-      </div>
-
-      {/* Section Title */}
-      <div className="space-y-2">
-        <Label>Section Title</Label>
-        <Input
-          value={title}
-          onChange={(e) => handleTitleUpdate(e.target.value)}
-          placeholder="Enter section title"
-        />
-      </div>
-
-      {/* Dynamic content based on section type */}
-      {section.type === 'hero' && (
-        <div className="space-y-4">
-          <div>
-            <Label>Name</Label>
-            <Input
-              value={content.name || ''}
-              onChange={(e) => handleContentUpdate('name', e.target.value)}
-              placeholder="Your name"
-            />
-          </div>
-          <div>
-            <Label>Title</Label>
-            <Input
-              value={content.title || ''}
-              onChange={(e) => handleContentUpdate('title', e.target.value)}
-              placeholder="Your professional title"
-            />
-          </div>
-          <div>
-            <Label>Description</Label>
-            <Textarea
-              value={content.description || ''}
-              onChange={(e) => handleContentUpdate('description', e.target.value)}
-              placeholder="Brief description about yourself"
-            />
-          </div>
-        </div>
-      )}
-
-      {section.type === 'about' && (
-        <div className="space-y-4">
-          <div>
-            <Label>About Text</Label>
-            <Textarea
-              value={content.about || ''}
-              onChange={(e) => handleContentUpdate('about', e.target.value)}
-              placeholder="Tell your story..."
-              rows={6}
-            />
-          </div>
-        </div>
-      )}
-
-      {section.type === 'projects' && (
-        <div className="space-y-6">
-          <div>
-            <Label>Project Title</Label>
-            <Input
-              value={content.title || ''}
-              onChange={(e) => handleContentUpdate('title', e.target.value)}
-              placeholder="Project name"
-            />
-          </div>
-          <div>
-            <Label>Description</Label>
-            <Textarea
-              value={content.description || ''}
-              onChange={(e) => handleContentUpdate('description', e.target.value)}
-              placeholder="Project description"
-              rows={4}
-            />
-          </div>
-
-          {/* Dynamic Links */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>Project Links</Label>
-              <Button size="sm" onClick={addProjectLink}>
-                <Plus className="w-4 h-4 mr-1" />
-                Add Link
-              </Button>
-            </div>
-            {(content.links || []).map((link, index) => (
-              <div key={index} className="grid grid-cols-3 gap-2 p-3 border rounded">
-                <Input
-                  placeholder="Label (e.g., Live Demo)"
-                  value={link.label}
-                  onChange={(e) => updateProjectLink(index, 'label', e.target.value)}
-                />
-                <Input
-                  placeholder="URL"
-                  value={link.url}
-                  onChange={(e) => updateProjectLink(index, 'url', e.target.value)}
-                />
-                <div className="flex gap-1">
-                  <Input
-                    placeholder="Icon"
-                    value={link.icon || ''}
-                    onChange={(e) => updateProjectLink(index, 'icon', e.target.value)}
-                  />
-                  <Button 
-                    size="sm" 
-                    variant="destructive"
-                    onClick={() => removeProjectLink(index)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Dynamic Tags */}
-          <div className="space-y-3">
-            <Label>Tags</Label>
-            <div className="flex flex-wrap gap-2">
-              {(content.tags || []).map((tag, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                  {tag}
-                  <button onClick={() => removeTag(index)}>
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Add a tag"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    addTag(e.currentTarget.value);
-                    e.currentTarget.value = '';
-                  }
-                }}
-              />
-              <Button 
-                size="sm"
-                onClick={(e) => {
-                  const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                  addTag(input.value);
-                  input.value = '';
-                }}
-              >
-                Add
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {section.type === 'skills' && (
-        <div className="space-y-4">
-          <div>
-            <Label>Skills (comma-separated)</Label>
-            <Textarea
-              value={(content.skills || []).join(', ')}
-              onChange={(e) => handleContentUpdate('skills', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-              placeholder="JavaScript, React, Node.js, Python..."
-              rows={3}
-            />
-          </div>
-        </div>
-      )}
-
-      {section.type === 'contact' && (
-        <div className="space-y-4">
-          <div>
-            <Label>Email</Label>
-            <Input
-              type="email"
-              value={content.email || ''}
-              onChange={(e) => handleContentUpdate('email', e.target.value)}
-              placeholder="your.email@example.com"
-            />
-          </div>
-          <div>
-            <Label>Phone</Label>
-            <Input
-              value={content.phone || ''}
-              onChange={(e) => handleContentUpdate('phone', e.target.value)}
-              placeholder="+1 (555) 123-4567"
-            />
-          </div>
-          <div>
-            <Label>Location</Label>
-            <Input
-              value={content.location || ''}
-              onChange={(e) => handleContentUpdate('location', e.target.value)}
-              placeholder="City, Country"
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
 // Sortable Section Component
 const SortableSection = ({
   section,
@@ -904,12 +636,831 @@ const SortableSection = ({
           <SectionEditor
             section={section}
             onUpdate={(updates) => onUpdate(section.id, updates)}
-            onClose={() => onEdit('')}
           />
         </CardContent>
       )}
     </Card>
   );
+};
+
+// Section Editor Component
+const SectionEditor = ({
+  section,
+  onUpdate,
+}: {
+  section: PortfolioSection;
+  onUpdate: (updates: Partial<PortfolioSection>) => void;
+}) => {
+  const handleContentUpdate = useCallback(
+    (field: string, value: any) => {
+      onUpdate({
+        content: {
+          ...section.content,
+          [field]: value,
+        },
+      });
+    },
+    [section.content, onUpdate]
+  );
+
+  const handleArrayItemUpdate = useCallback(
+    (field: string, index: number, value: any) => {
+      const currentArray = section.content[field] || [];
+      const newArray = [...currentArray];
+      newArray[index] = value;
+      handleContentUpdate(field, newArray);
+    },
+    [section.content, handleContentUpdate]
+  );
+
+  const addArrayItem = useCallback(
+    (field: string, newItem: any) => {
+      const currentArray = section.content[field] || [];
+      handleContentUpdate(field, [...currentArray, newItem]);
+    },
+    [section.content, handleContentUpdate]
+  );
+
+  const removeArrayItem = useCallback(
+    (field: string, index: number) => {
+      const currentArray = section.content[field] || [];
+      handleContentUpdate(
+        field,
+        currentArray.filter((_, i) => i !== index)
+      );
+    },
+    [section.content, handleContentUpdate]
+  );
+
+  const getVariantOptions = (type: PortfolioSection["type"]) => {
+    return COMPONENT_LIBRARY[type]?.variants || [];
+  };
+
+  switch (section.type) {
+    case "hero":
+      return (
+        <div className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium">Component Variant</Label>
+            <Select
+              value={section.variant}
+              onValueChange={(value) => onUpdate({ variant: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {getVariantOptions("hero").map((variant) => (
+                  <SelectItem key={variant.id} value={variant.id}>
+                    {variant.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">Name</Label>
+            <Input
+              value={section.content.name || ""}
+              onChange={(e) => handleContentUpdate("name", e.target.value)}
+              placeholder="Your full name"
+            />
+          </div>
+          <div>
+            <Label className="text-sm font-medium">Title</Label>
+            <Input
+              value={section.content.title || ""}
+              onChange={(e) => handleContentUpdate("title", e.target.value)}
+              placeholder="Your professional title"
+            />
+          </div>
+          <div>
+            <Label className="text-sm font-medium">Subtitle</Label>
+            <Input
+              value={section.content.subtitle || ""}
+              onChange={(e) => handleContentUpdate("subtitle", e.target.value)}
+              placeholder="Brief description"
+            />
+          </div>
+          <div>
+            <Label className="text-sm font-medium">Profile Image URL</Label>
+            <Input
+              value={section.content.profileImage || ""}
+              onChange={(e) =>
+                handleContentUpdate("profileImage", e.target.value)
+              }
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+
+          {section.variant === "hero-video" && (
+            <div>
+              <Label className="text-sm font-medium">Video URL</Label>
+              <Input
+                value={section.content.videoUrl || ""}
+                onChange={(e) =>
+                  handleContentUpdate("videoUrl", e.target.value)
+                }
+                placeholder="https://example.com/video.mp4"
+              />
+            </div>
+          )}
+
+          <div>
+            <Label className="text-sm font-medium">Background Type</Label>
+            <Select
+              value={section.content.backgroundType || "solid"}
+              onValueChange={(value) =>
+                handleContentUpdate("backgroundType", value)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="solid">Solid Color</SelectItem>
+                <SelectItem value="gradient">Gradient</SelectItem>
+                <SelectItem value="pattern">Pattern</SelectItem>
+                <SelectItem value="image">Image</SelectItem>
+                <SelectItem value="video">Video</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      );
+
+    case "about":
+      return (
+        <div className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium">Component Variant</Label>
+            <Select
+              value={section.variant}
+              onValueChange={(value) => onUpdate({ variant: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {getVariantOptions("about").map((variant) => (
+                  <SelectItem key={variant.id} value={variant.id}>
+                    {variant.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">Description</Label>
+            <Textarea
+              value={section.content.description || ""}
+              onChange={(e) =>
+                handleContentUpdate("description", e.target.value)
+              }
+              placeholder="Tell us about yourself..."
+              className="min-h-24"
+            />
+          </div>
+
+          {section.variant === "about-split" && (
+            <div>
+              <Label className="text-sm font-medium">Image URL</Label>
+              <Input
+                value={section.content.image || ""}
+                onChange={(e) => handleContentUpdate("image", e.target.value)}
+                placeholder="https://example.com/about-image.jpg"
+              />
+            </div>
+          )}
+
+          {(section.variant === "about-timeline" ||
+            section.variant === "about-cards" ||
+            section.variant === "about-simple") && ( // Assuming highlights for simple too
+            <div>
+              <Label className="text-sm font-medium">
+                {section.variant === "about-timeline"
+                  ? "Timeline Items"
+                  : section.variant === "about-cards"
+                  ? "Cards"
+                  : "Highlights"}
+              </Label>
+              <div className="space-y-2">
+                {(
+                  section.content[
+                    section.variant === "about-timeline"
+                      ? "timeline"
+                      : section.variant === "about-cards"
+                      ? "cards"
+                      : "highlights"
+                  ] || []
+                ).map((item: string, index: number) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      value={item}
+                      onChange={(e) => {
+                        const field =
+                          section.variant === "about-timeline"
+                            ? "timeline"
+                            : section.variant === "about-cards"
+                            ? "cards"
+                            : "highlights";
+                        handleArrayItemUpdate(field, index, e.target.value);
+                      }}
+                      placeholder={
+                        section.variant === "about-timeline"
+                          ? "Timeline item"
+                          : section.variant === "about-cards"
+                          ? "Card title"
+                          : "Highlight"
+                      }
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const field =
+                          section.variant === "about-timeline"
+                            ? "timeline"
+                            : section.variant === "about-cards"
+                            ? "cards"
+                            : "highlights";
+                        removeArrayItem(field, index);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const field =
+                      section.variant === "about-timeline"
+                        ? "timeline"
+                        : section.variant === "about-cards"
+                        ? "cards"
+                        : "highlights";
+                    addArrayItem(field, "");
+                  }}
+                  className="w-full"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add{" "}
+                  {section.variant === "about-timeline"
+                    ? "Timeline Item"
+                    : section.variant === "about-cards"
+                    ? "Card"
+                    : "Highlight"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+
+    case "skills":
+      return (
+        <div className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium">Component Variant</Label>
+            <Select
+              value={section.variant}
+              onValueChange={(value) => onUpdate({ variant: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {getVariantOptions("skills").map((variant) => (
+                  <SelectItem key={variant.id} value={variant.id}>
+                    {variant.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">Skills</Label>
+            <div className="space-y-2">
+              {(section.content.skills || []).map(
+                (skill: any, index: number) => (
+                  <div key={index} className="flex gap-2">
+                    {section.variant === "skills-progress" ||
+                    section.variant === "skills-chart" ? (
+                      <div className="flex-1 space-y-2">
+                        <Input
+                          value={typeof skill === "object" ? skill.name : skill}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("skills", index, {
+                              ...(typeof skill === "object"
+                                ? skill
+                                : { name: skill, level: 50 }),
+                              name: e.target.value,
+                            })
+                          }
+                          placeholder="Skill name"
+                        />
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={typeof skill === "object" ? skill.level : 50}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("skills", index, {
+                              ...(typeof skill === "object"
+                                ? skill
+                                : { name: skill }),
+                              level: parseInt(e.target.value),
+                            })
+                          }
+                          placeholder="Skill level (0-100)"
+                        />
+                      </div>
+                    ) : (
+                      <Input
+                        value={typeof skill === "object" ? skill.name : skill}
+                        onChange={(e) =>
+                          handleArrayItemUpdate("skills", index, e.target.value)
+                        }
+                        placeholder="Skill name"
+                      />
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeArrayItem("skills", index)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )
+              )}
+              <Button
+                variant="outline"
+                onClick={() =>
+                  addArrayItem(
+                    "skills",
+                    section.variant === "skills-progress" ||
+                      section.variant === "skills-chart"
+                      ? { name: "", level: 50 }
+                      : ""
+                  )
+                }
+                className="w-full"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Skill
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+
+    case "projects":
+      return (
+        <div className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium">Component Variant</Label>
+            <Select
+              value={section.variant}
+              onValueChange={(value) => onUpdate({ variant: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {getVariantOptions("projects").map((variant) => (
+                  <SelectItem key={variant.id} value={variant.id}>
+                    {variant.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">Projects</Label>
+            <div className="space-y-4">
+              {(section.content.projects || []).map(
+                (project: any, index: number) => (
+                  <Card key={index} className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <h5 className="font-medium">Project {index + 1}</h5>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeArrayItem("projects", index)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <Input
+                        value={project.title || ""}
+                        onChange={(e) =>
+                          handleArrayItemUpdate("projects", index, {
+                            ...project,
+                            title: e.target.value,
+                          })
+                        }
+                        placeholder="Project title"
+                      />
+                      <Textarea
+                        value={project.description || ""}
+                        onChange={(e) =>
+                          handleArrayItemUpdate("projects", index, {
+                            ...project,
+                            description: e.target.value,
+                          })
+                        }
+                        placeholder="Project description"
+                      />
+                      <Input
+                        value={project.image || ""}
+                        onChange={(e) =>
+                          handleArrayItemUpdate("projects", index, {
+                            ...project,
+                            image: e.target.value,
+                          })
+                        }
+                        placeholder="Project image URL"
+                      />
+                      <Input
+                        value={project.technologies || ""}
+                        onChange={(e) =>
+                          handleArrayItemUpdate("projects", index, {
+                            ...project,
+                            technologies: e.target.value,
+                          })
+                        }
+                        placeholder="Technologies used (comma separated)"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          value={project.liveUrl || ""}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("projects", index, {
+                              ...project,
+                              liveUrl: e.target.value,
+                            })
+                          }
+                          placeholder="Live URL"
+                        />
+                        <Input
+                          value={project.githubUrl || ""}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("projects", index, {
+                              ...project,
+                              githubUrl: e.target.value,
+                            })
+                          }
+                          placeholder="GitHub URL"
+                        />
+                      </div>
+                      {section.variant === "projects-featured" && (
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            checked={project.featured || false}
+                            onCheckedChange={(checked) =>
+                              handleArrayItemUpdate("projects", index, {
+                                ...project,
+                                featured: checked,
+                              })
+                            }
+                          />
+                          <Label>Featured Project</Label>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                )
+              )}
+              <Button
+                variant="outline"
+                onClick={() =>
+                  addArrayItem("projects", {
+                    title: "",
+                    description: "",
+                    image: "",
+                    technologies: "",
+                    liveUrl: "",
+                    githubUrl: "",
+                    featured: false,
+                  })
+                }
+                className="w-full"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Project
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+
+    case "experience":
+      return (
+        <div className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium">Component Variant</Label>
+            <Select
+              value={section.variant}
+              onValueChange={(value) => onUpdate({ variant: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {getVariantOptions("experience").map((variant) => (
+                  <SelectItem key={variant.id} value={variant.id}>
+                    {variant.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">Experience</Label>
+            <div className="space-y-4">
+              {(section.content.experiences || []).map(
+                (exp: any, index: number) => (
+                  <Card key={index} className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <h5 className="font-medium">Experience {index + 1}</h5>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeArrayItem("experiences", index)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          value={exp.company || ""}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("experiences", index, {
+                              ...exp,
+                              company: e.target.value,
+                            })
+                          }
+                          placeholder="Company"
+                        />
+                        <Input
+                          value={exp.position || ""}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("experiences", index, {
+                              ...exp,
+                              position: e.target.value,
+                            })
+                          }
+                          placeholder="Position"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          value={exp.startDate || ""}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("experiences", index, {
+                              ...exp,
+                              startDate: e.target.value,
+                            })
+                          }
+                          placeholder="Start Date"
+                        />
+                        <Input
+                          value={exp.endDate || ""}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("experiences", index, {
+                              ...exp,
+                              endDate: e.target.value,
+                            })
+                          }
+                          placeholder="End Date (or 'Present')"
+                        />
+                      </div>
+                      <Textarea
+                        value={exp.description || ""}
+                        onChange={(e) =>
+                          handleArrayItemUpdate("experiences", index, {
+                            ...exp,
+                            description: e.target.value,
+                          })
+                        }
+                        placeholder="Job description"
+                      />
+                    </div>
+                  </Card>
+                )
+              )}
+              <Button
+                variant="outline"
+                onClick={() =>
+                  addArrayItem("experiences", {
+                    company: "",
+                    position: "",
+                    startDate: "",
+                    endDate: "",
+                    description: "",
+                  })
+                }
+                className="w-full"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Experience
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+
+    case "education":
+      return (
+        <div className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium">Component Variant</Label>
+            <Select
+              value={section.variant}
+              onValueChange={(value) => onUpdate({ variant: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {getVariantOptions("education").map((variant) => (
+                  <SelectItem key={variant.id} value={variant.id}>
+                    {variant.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">Education</Label>
+            <div className="space-y-4">
+              {(section.content.education || []).map(
+                (edu: any, index: number) => (
+                  <Card key={index} className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <h5 className="font-medium">Education {index + 1}</h5>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeArrayItem("education", index)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          value={edu.institution || ""}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("education", index, {
+                              ...edu,
+                              institution: e.target.value,
+                            })
+                          }
+                          placeholder="Institution"
+                        />
+                        <Input
+                          value={edu.degree || ""}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("education", index, {
+                              ...edu,
+                              degree: e.target.value,
+                            })
+                          }
+                          placeholder="Degree"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          value={edu.startDate || ""}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("education", index, {
+                              ...edu,
+                              startDate: e.target.value,
+                            })
+                          }
+                          placeholder="Start Date"
+                        />
+                        <Input
+                          value={edu.endDate || ""}
+                          onChange={(e) =>
+                            handleArrayItemUpdate("education", index, {
+                              ...edu,
+                              endDate: e.target.value,
+                            })
+                          }
+                          placeholder="End Date"
+                        />
+                      </div>
+                      <Textarea
+                        value={edu.description || ""}
+                        onChange={(e) =>
+                          handleArrayItemUpdate("education", index, {
+                            ...edu,
+                            description: e.target.value,
+                          })
+                        }
+                        placeholder="Description"
+                      />
+                    </div>
+                  </Card>
+                )
+              )}
+              <Button
+                variant="outline"
+                onClick={() =>
+                  addArrayItem("education", {
+                    institution: "",
+                    degree: "",
+                    startDate: "",
+                    endDate: "",
+                    description: "",
+                  })
+                }
+                className="w-full"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Education
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    case "contact":
+      return (
+        <div className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium">Component Variant</Label>
+            <Select
+              value={section.variant}
+              onValueChange={(value) => onUpdate({ variant: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {getVariantOptions("contact").map((variant) => (
+                  <SelectItem key={variant.id} value={variant.id}>
+                    {variant.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">Email</Label>
+            <Input
+              value={section.content.email || ""}
+              onChange={(e) => handleContentUpdate("email", e.target.value)}
+              placeholder="your.email@example.com"
+              type="email"
+            />
+          </div>
+          <div>
+            <Label className="text-sm font-medium">Phone</Label>
+            <Input
+              value={section.content.phone || ""}
+              onChange={(e) => handleContentUpdate("phone", e.target.value)}
+              placeholder="+1 (555) 123-4567"
+            />
+          </div>
+          <div>
+            <Label className="text-sm font-medium">Location</Label>
+            <Input
+              value={section.content.location || ""}
+              onChange={(e) => handleContentUpdate("location", e.target.value)}
+              placeholder="City, Country"
+            />
+          </div>
+
+          {section.variant === "contact-form" && (
+            <div className="flex items-center space-x-2">
+              <Switch
+                checked={section.content.showForm || false}
+                onCheckedChange={(checked) =>
+                  handleContentUpdate("showForm", checked)
+                }
+              />
+              <Label>Show Contact Form</Label>
+            </div>
+          )}
+        </div>
+      );
+
+    default:
+      return <div>Section editor not implemented for {section.type}</div>;
+  }
 };
 
 // Live Preview Component
@@ -1714,6 +2265,11 @@ export const UnifiedPortfolioBuilder = () => {
     "desktop"
   );
   const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
+  const [customSlug, setCustomSlug] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [userTier, setUserTier] = useState<'free' | 'premium'>('free');
+  const [portfolioCount, setPortfolioCount] = useState(0);
   const [showComponentSelector, setShowComponentSelector] = useState(false);
   const [selectedSectionType, setSelectedSectionType] =
     useState<keyof typeof COMPONENT_LIBRARY>("hero");
