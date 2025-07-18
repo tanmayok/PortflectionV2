@@ -2272,6 +2272,7 @@ export const UnifiedPortfolioBuilder = () => {
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [showComponentSelector, setShowComponentSelector] = useState(false);
   const [selectedSectionType, setSelectedSectionType] =
+  const [isPublishing, setIsPublishing] = useState(false);
     useState<keyof typeof COMPONENT_LIBRARY>("hero");
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -2321,6 +2322,50 @@ export const UnifiedPortfolioBuilder = () => {
     }
   }, []);
 
+  // Publish functionality
+  const handlePublish = async () => {
+    try {
+      setIsPublishing(true);
+      
+      // First save the current portfolio
+      await handleSave();
+      
+      // Then publish it
+      const response = await fetch('/api/portfolios/publish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          portfolioId: portfolioData.id,
+          customSlug: portfolioData.slug || portfolioData.name.toLowerCase().replace(/\s+/g, '-')
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to publish portfolio');
+      }
+      
+      const result = await response.json();
+      
+      // Update portfolio data with published status
+      setPortfolioData(prev => ({
+        ...prev,
+        status: 'published',
+        publishedAt: new Date(),
+        isPublished: true
+      }));
+      
+      // Show success message with URL
+      alert(`Portfolio published successfully! View at: ${result.portfolioUrl}`);
+      
+    } catch (error) {
+      console.error('Publish error:', error);
+      alert('Failed to publish portfolio. Please try again.');
+    } finally {
+      setIsPublishing(false);
+    }
+  };
   const addSection = (type: keyof typeof COMPONENT_LIBRARY) => {
     setSelectedSectionType(type);
     setShowComponentSelector(true);
@@ -2535,6 +2580,29 @@ export const UnifiedPortfolioBuilder = () => {
                 accept=".json"
                 onChange={importData}
                 className="hidden"
+            {/* Publish Button */}
+            <Button
+              onClick={handlePublish}
+              disabled={isPublishing || autoSaveState.isSaving}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {isPublishing ? (
+                <>
+                  <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Publishing...
+                </>
+              ) : portfolioData.status === 'published' ? (
+                <>
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Update Live
+                </>
+              ) : (
+                <>
+                  <Globe className="w-4 h-4 mr-2" />
+                  Publish
+                </>
+              )}
+            </Button>
                 ref={importFileInputRef} // Use ref here
               />
               <Button
