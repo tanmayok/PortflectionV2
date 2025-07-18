@@ -2178,7 +2178,12 @@ const LivePreview = ({
                     <Input placeholder="Your Email" type="email" />
                     <Textarea placeholder="Your Message" />
                     <Button
-                      style={{ backgroundColor: theme.primary, color: "white" }}
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => state.portfolio.publishedUrl && copyToClipboard(state.portfolio.publishedUrl)}
+                      disabled={!state.portfolio.isPublished}
+                    >
                     >
                       Send Message
                     </Button>
@@ -2264,14 +2269,91 @@ export const UnifiedPortfolioBuilder = () => {
   const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">(
     "desktop"
   );
+
+            {/* Right Sidebar - Section Editor or Theme Customization */}
+            <div className="w-80 border-l border-border bg-muted/30">
+              {editingSection ? (
+                <div className="p-4">
+                  <SectionEditor
+                    section={state.portfolio.sections.find(s => s.id === editingSection)!}
+                    onUpdate={(updates) => {
+                      dispatch({
+                        type: 'UPDATE_SECTION',
+                        payload: { id: editingSection, updates }
+                      });
+                    }}
+                    onClose={() => setEditingSection(null)}
+                  />
+                </div>
+              ) : (
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold mb-4">Theme Customization</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Select a section to edit its content, or customize the overall theme here.
+                  </p>
+                  {/* Theme customization controls would go here */}
+                </div>
+              )}
+            </div>
   const [editingSection, setEditingSection] = useState<string | null>(null);
-  const [showPublishDialog, setShowPublishDialog] = useState(false);
-  const [customSlug, setCustomSlug] = useState('');
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [userTier, setUserTier] = useState<'free' | 'premium'>('free');
-  const [portfolioCount, setPortfolioCount] = useState(0);
   const [showComponentSelector, setShowComponentSelector] = useState(false);
   const [selectedSectionType, setSelectedSectionType] =
+
+      {/* Publish Dialog */}
+      <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {state.portfolio.isPublished ? 'Update Published Portfolio' : 'Publish Your Portfolio'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label>Custom URL Slug (optional)</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {window.location.origin}/portfolio/
+                </span>
+                <Input
+                  value={customSlug}
+                  onChange={(e) => setCustomSlug(e.target.value)}
+                  placeholder={generateSlug(state.portfolio.name)}
+                />
+              </div>
+            </div>
+            
+            {state.portfolio.isPublished && (
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-sm">
+                  Current URL: 
+                  <a 
+                    href={state.portfolio.publishedUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="ml-1 text-primary hover:underline"
+                  >
+                    {state.portfolio.publishedUrl}
+                  </a>
+                </p>
+              </div>
+            )}
+            
+            <div className="flex gap-2">
+              <Button 
+                onClick={handlePublish} 
+                disabled={isPublishing}
+                className="flex-1"
+              >
+                {isPublishing ? 'Publishing...' : (state.portfolio.isPublished ? 'Update Live' : 'Publish')}
+              </Button>
+              <Button variant="outline" onClick={() => setShowPublishDialog(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     useState<keyof typeof COMPONENT_LIBRARY>("hero");
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);

@@ -154,6 +154,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Check user tier and portfolio limits
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: { _count: { select: { portfolio: true } } }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Enforce portfolio limits for free users
+    if (user.subscriptionTier === 'free' && user._count.portfolio >= 3) {
+      return NextResponse.json({ 
+        error: 'Portfolio limit reached', 
+        details: 'Free users can only create 3 portfolios. Upgrade to Premium for unlimited portfolios.' 
+      }, { status: 403 });
+    }
+
     const body = await req.json();
     const validatedData = createPortfolioSchema.parse(body);
 
@@ -175,18 +193,28 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
+    // Generate unique portfolio ID and published URL if publishing
+    const portfolioId = `portfolio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const publishedUrl = validatedData.isPublished 
+      ? `${process.env.NEXT_PUBLIC_BASE_URL}/portfolio/${validatedData.slug || portfolioId}`
+      : null;
+
     const portfolio = await prisma.portfolio.create({
       data: {
         userId: session.user.id,
+        portfolioId,
         name: validatedData.name,
         title: validatedData.globalSettings.seo.title,
         email: session.user.email || '',
         portfolioType: 'developer', // Default type
+        isPublished: validatedData.isPublished,
         extraData: {
           slug: validatedData.slug,
+          publishedUrl,
+          status: validatedData.status,
+          version: validatedData.version,
           sections: validatedData.sections || [],
           globalSettings: validatedData.globalSettings,
-          status: validatedData.status,
           metadata: {
             views: 0,
             version: 1,

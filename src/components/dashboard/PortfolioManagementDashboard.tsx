@@ -213,7 +213,7 @@ export const PortfolioManagementDashboard = () => {
             </Button>
             {portfolio.status === 'published' && (
               <Button size="sm" variant="outline" asChild>
-                <Link href={`/portfolio/${portfolio.id}`} target="_blank">
+                <Link href={portfolio.publishedUrl || `/portfolio/${portfolio.slug}`} target="_blank">
                   <ExternalLink className="w-4 h-4" />
                 </Link>
               </Button>

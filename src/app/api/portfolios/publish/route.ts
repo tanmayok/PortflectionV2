@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 const publishSchema = z.object({
   portfolioId: z.string().min(1, 'Portfolio ID is required'),
+  customSlug: z.string().optional(),
   customDomain: z.string().optional()
 });
 
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { portfolioId, customDomain } = publishSchema.parse(body);
+    const { portfolioId, customSlug, customDomain } = publishSchema.parse(body);
 
     // Verify ownership
     const existingPortfolio = await prisma.portfolio.findUnique({
@@ -28,16 +29,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Portfolio not found' }, { status: 404 });
     }
 
+    // Generate published URL
+    const slug = customSlug || existingPortfolio.name.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+    
+    const publishedUrl = customDomain 
+      ? `https://${customDomain}`
+      : `${process.env.NEXT_PUBLIC_BASE_URL}/portfolio/${slug}`;
+
     // Update portfolio status to published
     const currentExtraData = existingPortfolio.extraData as any || {};
     const updatedExtraData = {
       ...currentExtraData,
       status: 'published',
+      publishedUrl,
       publishedAt: new Date().toISOString(),
       globalSettings: {
         ...currentExtraData.globalSettings,
         domain: {
           ...currentExtraData.globalSettings?.domain,
+          slug,
           customDomain: customDomain || currentExtraData.globalSettings?.domain?.customDomain
         }
       }
@@ -47,20 +61,16 @@ export async function POST(req: NextRequest) {
       where: { id: portfolioId },
       data: {
         isPublished: true,
+        publishedUrl,
         extraData: updatedExtraData,
         updatedAt: new Date()
       }
     });
 
-    // Generate portfolio URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const portfolioUrl = customDomain 
-      ? `https://${customDomain}`
-      : `${baseUrl}/portfolio/${portfolio.id}`;
 
     return NextResponse.json({
       message: 'Portfolio published successfully',
-      portfolioUrl,
+      portfolioUrl: publishedUrl,
       publishedAt: updatedExtraData.publishedAt
     });
   } catch (error) {
