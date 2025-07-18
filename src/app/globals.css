@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../styles/utils.css";
+@import "../styles/responsive.css";
 
 @plugin "tailwindcss-animate";
 
