@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "TAILWIND_DISABLE_NATIVE=true TURBO_FORCE_JS=true next dev",
+    "build": "TAILWIND_DISABLE_NATIVE=true next build",
     "start": "next start",
     "lint": "next lint"
   },
