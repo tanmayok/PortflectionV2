@@ -67,18 +67,18 @@ export const ComponentSelector = ({
   const ComponentPreview = ({ variant }: { variant: ComponentVariant }) => {
     return (
       <Card 
-        className="group cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105"
+        className="group cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] border-2 hover:border-primary/20"
         onClick={() => onSelectComponent(variant)}
       >
         <CardHeader className="p-0">
-          <div className="relative h-48 overflow-hidden rounded-t-lg bg-gradient-to-br from-gray-100 to-gray-200">
+          <div className="relative h-40 sm:h-48 overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/5 to-secondary/5">
             {/* Component Preview Image */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center p-4">
-                <div className="w-16 h-16 mx-auto mb-2 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <Grid3X3 className="w-8 h-8 text-primary" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 bg-primary/20 rounded-lg flex items-center justify-center">
+                  <Grid3X3 className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                 </div>
-                <div className="text-sm font-medium text-gray-600">{variant.name}</div>
+                <div className="text-xs sm:text-sm font-medium text-gray-600">{variant.name}</div>
               </div>
             </div>
             
@@ -98,10 +98,10 @@ export const ComponentSelector = ({
           </div>
         </CardHeader>
         
-        <CardContent className="p-4">
+        <CardContent className="p-3 sm:p-4">
           <div className="space-y-2">
-            <h3 className="font-semibold text-lg">{variant.name}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">
+            <h3 className="font-semibold text-sm sm:text-lg">{variant.name}</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
               {variant.description}
             </p>
             
@@ -141,13 +141,13 @@ export const ComponentSelector = ({
       >
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Grid3X3 className="w-8 h-8 text-primary" />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Grid3X3 className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
             </div>
             
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg mb-1">{variant.name}</h3>
-              <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
+              <h3 className="font-semibold text-sm sm:text-lg mb-1">{variant.name}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-1">
                 {variant.description}
               </p>
               
@@ -160,7 +160,7 @@ export const ComponentSelector = ({
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <Button size="sm" variant="outline">
                 <Eye className="w-4 h-4" />
               </Button>
@@ -179,8 +179,8 @@ export const ComponentSelector = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Component Library</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl sm:text-2xl font-bold">Component Library</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Choose from pre-built components to build your portfolio
           </p>
         </div>
@@ -192,6 +192,7 @@ export const ComponentSelector = ({
             onClick={() => setViewMode('grid')}
           >
             <Grid3X3 className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">Grid</span>
           </Button>
           <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
@@ -199,6 +200,7 @@ export const ComponentSelector = ({
             onClick={() => setViewMode('list')}
           >
             <List className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">List</span>
           </Button>
         </div>
       </div>
@@ -221,7 +223,7 @@ export const ComponentSelector = ({
           className="flex items-center gap-2"
         >
           <Filter className="w-4 h-4" />
-          Filters
+          <span className="hidden sm:inline">Filters</span>
           {selectedTags.length > 0 && (
             <Badge variant="secondary" className="ml-1">
               {selectedTags.length}
@@ -272,9 +274,9 @@ export const ComponentSelector = ({
 
       {/* Category Tabs */}
       <Tabs value={activeCategory} onValueChange={onCategoryChange}>
-        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 h-auto">
           {categories.map((category) => (
-            <TabsTrigger key={category.id} value={category.id} className="text-xs">
+            <TabsTrigger key={category.id} value={category.id} className="text-xs p-2 sm:p-3">
               {category.name}
             </TabsTrigger>
           ))}
@@ -283,14 +285,14 @@ export const ComponentSelector = ({
         {categories.map((category) => (
           <TabsContent key={category.id} value={category.id} className="mt-6">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold">{category.name}</h3>
-              <p className="text-sm text-muted-foreground">{category.description}</p>
+              <h3 className="text-base sm:text-lg font-semibold">{category.name}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">{category.description}</p>
             </div>
 
             {filteredVariants.length > 0 ? (
               <div className={
                 viewMode === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
                   : "space-y-4"
               }>
                 {filteredVariants.map((variant) => (
@@ -304,13 +306,22 @@ export const ComponentSelector = ({
             ) : (
               <div className="text-center py-12">
                 <Grid3X3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No components found</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-base sm:text-lg font-semibold mb-2">No components found</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">
                   {searchQuery || selectedTags.length > 0
                     ? 'Try adjusting your search or filters'
-                    : 'No components available in this category yet'
+                    : 'Components are loading...'
                   }
                 </p>
+                {!searchQuery && selectedTags.length === 0 && (
+                  <Button 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={() => window.location.reload()}
+                  >
+                    Refresh Components
+                  </Button>
+                )}
               </div>
             )}
           </TabsContent>
