@@ -19,7 +19,7 @@ export default function DashboardLayout({
               <DynamicBreadcrumb />
             </div>
           </header>
-          <main className="overflow-auto px-2">
+          <main className="overflow-auto">
             {children}
           </main>
         </SidebarInset>
