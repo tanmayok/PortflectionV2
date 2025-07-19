@@ -92,20 +92,21 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     
     // Create portfolio with auto-generated ID
-    const portfolioData = {
-      name: body.name || 'Untitled Portfolio',
-      title: body.title || 'Portfolio',
-      email: body.email || session.user.email || '',
-      userId: session.user.id,
-      sections: body.sections || [],
-      theme: body.theme || {},
-      isPublished: false,
-      status: 'draft' as const,
-      version: 1
-    };
-
     const portfolio = await prisma.portfolio.create({
-      data: portfolioData
+      data: {
+        name: body.name || 'Untitled Portfolio',
+        title: body.title || 'Portfolio',
+        email: body.email || session.user.email || '',
+        userId: session.user.id,
+        theme: body.theme || {},
+        isPublished: false,
+        status: 'draft',
+        version: 1,
+        extraData: {
+          sections: body.sections || [],
+          globalSettings: body.globalSettings || {}
+        }
+      }
     });
 
     return NextResponse.json(portfolio, { status: 201 });
