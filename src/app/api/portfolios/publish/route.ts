@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { authenticateUser } from '@/lib/authenticateUser';
-import { z } from 'zod';
 
-const publishSchema = z.object({
-  portfolioId: z.string().min(1, 'Portfolio ID is required'),
-  customSlug: z.string().optional(),
-  customDomain: z.string().optional()
-});
 
 // POST - Publish portfolio
 export async function POST(req: NextRequest) {
@@ -18,7 +12,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { portfolioId, customSlug, customDomain } = publishSchema.parse(body);
+    const { portfolioId } = body;
+    
+    if (!portfolioId) {
+      return NextResponse.json({ error: 'Portfolio ID is required' }, { status: 400 });
+    }
 
     // Verify ownership
     const existingPortfolio = await prisma.portfolio.findUnique({
@@ -30,20 +28,19 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate published URL
-    const slug = customSlug || existingPortfolio.name.toLowerCase()
+    const slug = existingPortfolio.name.toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .trim();
     
-    const publishedUrl = customDomain 
-      ? `https://${customDomain}`
-      : `${process.env.NEXT_PUBLIC_BASE_URL}/portfolio/${slug}`;
+    const publishedUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/portfolio/${portfolioId}`;
 
     const portfolio = await prisma.portfolio.update({
       where: { id: portfolioId },
       data: {
         isPublished: true,
+        status: 'published',
         publishedUrl,
         updatedAt: new Date()
       }
@@ -55,12 +52,6 @@ export async function POST(req: NextRequest) {
       publishedAt: new Date().toISOString()
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ 
-        error: 'Validation error', 
-        details: error.errors 
-      }, { status: 400 });
-    }
 
     console.error('Portfolio publish error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

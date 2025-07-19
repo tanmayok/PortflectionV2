@@ -90,29 +90,26 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const validatedData = createPortfolioSchema.parse(body);
+    
+    // Create portfolio with auto-generated ID
+    const portfolioData = {
+      name: body.name || 'Untitled Portfolio',
+      title: body.title || 'Portfolio',
+      email: body.email || session.user.email || '',
+      userId: session.user.id,
+      sections: body.sections || [],
+      theme: body.theme || {},
+      isPublished: false,
+      status: 'draft' as const,
+      version: 1
+    };
 
     const portfolio = await prisma.portfolio.create({
-      data: {
-        userId: session.user.id,
-        name: validatedData.name,
-        title: validatedData.globalSettings?.seo?.title || validatedData.name,
-        email: session.user.email || '',
-        extraData: {
-          sections: validatedData.sections || [],
-          globalSettings: validatedData.globalSettings,
-        }
-      }
+      data: portfolioData
     });
 
     return NextResponse.json(portfolio, { status: 201 });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ 
-        error: 'Validation error', 
-        details: error.errors 
-      }, { status: 400 });
-    }
 
     console.error('Portfolio creation error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
