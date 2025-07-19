@@ -2,22 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { authenticateUser } from '@/lib/authenticateUser';
 import { z } from 'zod';
-import { Portfolio, PortfolioSection } from '@/types/component-system';
 
 // Validation schemas
 const createPortfolioSchema = z.object({
   name: z.string().min(1, 'Portfolio name is required'),
   slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Invalid slug format'),
-  sections: z.array(z.object({
-    id: z.string(),
-    type: z.string(),
-    componentVariantId: z.string(),
-    order: z.number(),
-    isVisible: z.boolean(),
-    content: z.record(z.any()),
-    customStyling: z.record(z.any()).optional(),
-    responsiveOverrides: z.record(z.any()).optional()
-  })).optional(),
+  sections: z.array(z.any()).optional(),
   globalSettings: z.object({
     theme: z.object({
       colorScheme: z.string(),
@@ -66,79 +56,24 @@ export async function GET(req: NextRequest) {
           id: portfolioId,
           userId: session.user.id 
         },
-        include: {
-          viewsLog: {
-            orderBy: { timestamp: 'desc' },
-            take: 10
-          }
-        }
       });
 
       if (!portfolio) {
         return NextResponse.json({ error: 'Portfolio not found' }, { status: 404 });
       }
 
-      // Parse JSON fields
-      const parsedPortfolio = {
-        ...portfolio,
-        sections: portfolio.extraData?.sections || [],
-        globalSettings: portfolio.extraData?.globalSettings || {
-          theme: { colorScheme: 'default', fontPairing: 'inter-system', spacing: 'comfortable' },
-          seo: { title: portfolio.name, description: '', keywords: [] },
-          domain: { subdomain: portfolio.name.toLowerCase().replace(/\s+/g, '-') },
-          analytics: { trackingEnabled: false }
-        },
-        metadata: {
-          views: portfolio.views,
-          version: 1,
-          backups: []
-        }
-      };
-
-      return NextResponse.json(parsedPortfolio);
+      return NextResponse.json(portfolio);
     } else {
       // Fetch all portfolios for the user
       const whereClause: any = { userId: session.user.id };
-      if (status) {
-        whereClause.extraData = {
-          path: ['status'],
-          equals: status
-        };
-      }
 
       const portfolios = await prisma.portfolio.findMany({
         where: whereClause,
-        include: {
-          _count: {
-            select: {
-              viewsLog: true
-            }
-          }
-        },
         orderBy: { updatedAt: 'desc' },
         take: limit ? parseInt(limit) : undefined
       });
 
-      const parsedPortfolios = portfolios.map(portfolio => ({
-        id: portfolio.id,
-        name: portfolio.name,
-        slug: portfolio.name.toLowerCase().replace(/\s+/g, '-'),
-        status: portfolio.extraData?.status || 'draft',
-        sections: portfolio.extraData?.sections || [],
-        globalSettings: portfolio.extraData?.globalSettings || {},
-        metadata: {
-          views: portfolio.views,
-          version: 1,
-          backups: []
-        },
-        createdAt: portfolio.createdAt,
-        updatedAt: portfolio.updatedAt,
-        publishedAt: portfolio.extraData?.publishedAt ? new Date(portfolio.extraData.publishedAt) : null,
-        lastSavedAt: portfolio.updatedAt,
-        autoSaveEnabled: true
-      }));
-
-      return NextResponse.json(parsedPortfolios);
+      return NextResponse.json(portfolios);
     }
   } catch (error) {
     console.error('Portfolio fetch error:', error);
@@ -154,97 +89,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check user tier and portfolio limits
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: { _count: { select: { portfolio: true } } }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Enforce portfolio limits for free users
-    if (user.subscriptionTier === 'free' && user._count.portfolio >= 3) {
-      return NextResponse.json({ 
-        error: 'Portfolio limit reached', 
-        details: 'Free users can only create 3 portfolios. Upgrade to Premium for unlimited portfolios.' 
-      }, { status: 403 });
-    }
-
     const body = await req.json();
     const validatedData = createPortfolioSchema.parse(body);
-
-    // Check if slug is unique for this user
-    const existingPortfolio = await prisma.portfolio.findFirst({
-      where: {
-        userId: session.user.id,
-        extraData: {
-          path: ['slug'],
-          equals: validatedData.slug
-        }
-      }
-    });
-
-    if (existingPortfolio) {
-      return NextResponse.json({ 
-        error: 'Slug already exists', 
-        details: 'Please choose a different slug' 
-      }, { status: 400 });
-    }
-
-    // Generate unique portfolio ID and published URL if publishing
-    const portfolioId = `portfolio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const publishedUrl = validatedData.isPublished 
-      ? `${process.env.NEXT_PUBLIC_BASE_URL}/portfolio/${validatedData.slug || portfolioId}`
-      : null;
 
     const portfolio = await prisma.portfolio.create({
       data: {
         userId: session.user.id,
-        portfolioId,
         name: validatedData.name,
-        title: validatedData.globalSettings.seo.title,
+        title: validatedData.globalSettings?.seo?.title || validatedData.name,
         email: session.user.email || '',
-        portfolioType: 'developer', // Default type
-        isPublished: validatedData.isPublished,
         extraData: {
-          slug: validatedData.slug,
-          publishedUrl,
-          status: validatedData.status,
-          version: validatedData.version,
           sections: validatedData.sections || [],
           globalSettings: validatedData.globalSettings,
-          metadata: {
-            views: 0,
-            version: 1,
-            backups: []
-          },
-          autoSaveEnabled: true
         }
       }
     });
 
-    const responsePortfolio: Portfolio = {
-      id: portfolio.id,
-      userId: portfolio.userId,
-      name: portfolio.name,
-      slug: validatedData.slug,
-      status: validatedData.status,
-      sections: validatedData.sections || [],
-      globalSettings: validatedData.globalSettings,
-      metadata: {
-        views: 0,
-        version: 1,
-        backups: []
-      },
-      createdAt: portfolio.createdAt,
-      updatedAt: portfolio.updatedAt,
-      lastSavedAt: portfolio.updatedAt,
-      autoSaveEnabled: true
-    };
-
-    return NextResponse.json(responsePortfolio, { status: 201 });
+    return NextResponse.json(portfolio, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ 
@@ -267,8 +128,11 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const validatedData = updatePortfolioSchema.parse(body);
-    const { id, ...updateData } = validatedData;
+    const { id, ...updateData } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Portfolio ID is required' }, { status: 400 });
+    }
 
     // Verify ownership
     const existingPortfolio = await prisma.portfolio.findUnique({
@@ -279,49 +143,16 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Portfolio not found' }, { status: 404 });
     }
 
-    // Merge existing extraData with updates
-    const currentExtraData = existingPortfolio.extraData as any || {};
-    const updatedExtraData = {
-      ...currentExtraData,
-      ...updateData,
-      lastSavedAt: new Date().toISOString()
-    };
-
     const portfolio = await prisma.portfolio.update({
       where: { id },
       data: {
-        name: updateData.name || existingPortfolio.name,
-        title: updateData.globalSettings?.seo?.title || existingPortfolio.title,
-        extraData: updatedExtraData,
+        ...updateData,
         updatedAt: new Date()
       }
     });
 
-    const responsePortfolio: Portfolio = {
-      id: portfolio.id,
-      userId: portfolio.userId,
-      name: portfolio.name,
-      slug: updatedExtraData.slug || portfolio.name.toLowerCase().replace(/\s+/g, '-'),
-      status: updatedExtraData.status || 'draft',
-      sections: updatedExtraData.sections || [],
-      globalSettings: updatedExtraData.globalSettings || {},
-      metadata: updatedExtraData.metadata || { views: portfolio.views, version: 1, backups: [] },
-      createdAt: portfolio.createdAt,
-      updatedAt: portfolio.updatedAt,
-      publishedAt: updatedExtraData.publishedAt ? new Date(updatedExtraData.publishedAt) : undefined,
-      lastSavedAt: new Date(updatedExtraData.lastSavedAt),
-      autoSaveEnabled: updatedExtraData.autoSaveEnabled ?? true
-    };
-
-    return NextResponse.json(responsePortfolio);
+    return NextResponse.json(portfolio);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ 
-        error: 'Validation error', 
-        details: error.errors 
-      }, { status: 400 });
-    }
-
     console.error('Portfolio update error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

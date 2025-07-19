@@ -54,15 +54,14 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Portfolios",
-    url: "/dashboard/portfolios",
+    title: "Portfolio Builder",
+    url: "/dashboard/portfolio-builder",
     icon: Folder,
-    items: [
-      { title: "My Portfolios", url: "/dashboard/my-portfolios" },
-      { title: "Create New", url: "/dashboard/portfolios/new" },
-      { title: "Portfolio Builder", url: "/dashboard/builder" },
-      { title: "Information Forms", url: "/dashboard/information" },
-    ],
+  },
+  {
+    title: "My Portfolios",
+    url: "/dashboard/portfolios",
+    icon: FileText,
   },
   {
     title: "Analytics",

@@ -40,38 +40,19 @@ export async function POST(req: NextRequest) {
       ? `https://${customDomain}`
       : `${process.env.NEXT_PUBLIC_BASE_URL}/portfolio/${slug}`;
 
-    // Update portfolio status to published
-    const currentExtraData = existingPortfolio.extraData as any || {};
-    const updatedExtraData = {
-      ...currentExtraData,
-      status: 'published',
-      publishedUrl,
-      publishedAt: new Date().toISOString(),
-      globalSettings: {
-        ...currentExtraData.globalSettings,
-        domain: {
-          ...currentExtraData.globalSettings?.domain,
-          slug,
-          customDomain: customDomain || currentExtraData.globalSettings?.domain?.customDomain
-        }
-      }
-    };
-
     const portfolio = await prisma.portfolio.update({
       where: { id: portfolioId },
       data: {
         isPublished: true,
         publishedUrl,
-        extraData: updatedExtraData,
         updatedAt: new Date()
       }
     });
 
-
     return NextResponse.json({
       message: 'Portfolio published successfully',
       portfolioUrl: publishedUrl,
-      publishedAt: updatedExtraData.publishedAt
+      publishedAt: new Date().toISOString()
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -108,19 +89,10 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Portfolio not found' }, { status: 404 });
     }
 
-    // Update portfolio status to draft
-    const currentExtraData = existingPortfolio.extraData as any || {};
-    const updatedExtraData = {
-      ...currentExtraData,
-      status: 'draft',
-      publishedAt: null
-    };
-
     await prisma.portfolio.update({
       where: { id: portfolioId },
       data: {
         isPublished: false,
-        extraData: updatedExtraData,
         updatedAt: new Date()
       }
     });

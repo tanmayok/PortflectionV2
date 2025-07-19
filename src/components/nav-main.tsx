@@ -35,9 +35,9 @@ export function NavMain({
     <SidebarGroup>
       <SidebarMenu>
         {items.map((item) => {
-          const hasMultipleSubItems = item.items && item.items.length > 1;
+          const hasSubItems = item.items && item.items.length > 0;
 
-          if (hasMultipleSubItems) {
+          if (hasSubItems) {
             return (
               <Collapsible
                 key={item.title}
@@ -71,7 +71,7 @@ export function NavMain({
             );
           }
 
-          // Single item — no dropdown
+          // Single item - no dropdown
           return (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
