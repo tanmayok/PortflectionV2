@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  MoreVertical, 
-  Eye, 
-  Edit, 
-  Trash2, 
+"use client";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Plus,
+  Search,
+  Filter,
+  MoreVertical,
+  Eye,
+  Edit,
+  Trash2,
   Share2,
   Download,
   TrendingUp,
@@ -23,10 +24,10 @@ import {
   BarChart3,
   Calendar,
   Star,
-  Clock
-} from 'lucide-react';
-import { toast } from 'sonner';
-import Link from 'next/link';
+  Clock,
+} from "lucide-react";
+import { toast } from "sonner";
+import Link from "next/link";
 
 // Types
 interface Portfolio {
@@ -66,82 +67,84 @@ interface Template {
 // Mock data for demonstration
 const mockPortfolios: Portfolio[] = [
   {
-    id: '1',
-    name: 'John Doe Portfolio',
-    title: 'Full Stack Developer',
-    portfolioType: 'developer',
+    id: "1",
+    name: "John Doe Portfolio",
+    title: "Full Stack Developer",
+    portfolioType: "developer",
     isPublished: true,
     views: 1250,
-    createdAt: '2024-01-15',
-    updatedAt: '2024-01-20',
+    createdAt: "2024-01-15",
+    updatedAt: "2024-01-20",
     theme: {
       colors: {
-        primary: '#3b82f6',
-        secondary: '#64748b'
-      }
+        primary: "#3b82f6",
+        secondary: "#64748b",
+      },
     },
     _count: {
       projects: 8,
       experiences: 3,
       skills: 15,
-      educations: 2
-    }
+      educations: 2,
+    },
   },
   {
-    id: '2',
-    name: 'Design Portfolio',
-    title: 'UX/UI Designer',
-    portfolioType: 'designer',
+    id: "2",
+    name: "Design Portfolio",
+    title: "UX/UI Designer",
+    portfolioType: "designer",
     isPublished: false,
     views: 0,
-    createdAt: '2024-01-18',
-    updatedAt: '2024-01-18',
+    createdAt: "2024-01-18",
+    updatedAt: "2024-01-18",
     theme: {
       colors: {
-        primary: '#8b5cf6',
-        secondary: '#ec4899'
-      }
+        primary: "#8b5cf6",
+        secondary: "#ec4899",
+      },
     },
     _count: {
       projects: 5,
       experiences: 2,
       skills: 12,
-      educations: 1
-    }
-  }
+      educations: 1,
+    },
+  },
 ];
 
 const mockTemplates: Template[] = [
   {
-    id: '1',
-    name: 'Modern Developer',
-    description: 'Clean and professional template for developers',
-    category: 'developer',
-    preview: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400',
+    id: "1",
+    name: "Modern Developer",
+    description: "Clean and professional template for developers",
+    category: "developer",
+    preview:
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400",
     downloads: 1250,
     rating: 4.8,
-    isPremium: false
+    isPremium: false,
   },
   {
-    id: '2',
-    name: 'Creative Designer',
-    description: 'Vibrant template perfect for creative professionals',
-    category: 'designer',
-    preview: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=400',
+    id: "2",
+    name: "Creative Designer",
+    description: "Vibrant template perfect for creative professionals",
+    category: "designer",
+    preview: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=400",
     downloads: 890,
     rating: 4.9,
-    isPremium: true
+    isPremium: true,
   },
   {
-    id: '3',
-    name: 'Business Professional',
-    description: 'Elegant template for business consultants',
-    category: 'business',
-    preview: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+    id: "3",
+    name: "Business Professional",
+    description: "Elegant template for business consultants",
+    category: "business",
+    preview:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
     downloads: 650,
     rating: 4.7,
-    isPremium: false
-  }
+    isPremium: false,
+  },
 ];
 
 // Portfolio Card Component
@@ -160,25 +163,29 @@ const PortfolioCard: React.FC<{
             <p className="text-sm text-muted-foreground">{portfolio.title}</p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant={portfolio.isPublished ? 'default' : 'secondary'}>
-              {portfolio.isPublished ? 'Published' : 'Draft'}
+            <Badge variant={portfolio.isPublished ? "default" : "secondary"}>
+              {portfolio.isPublished ? "Published" : "Draft"}
             </Badge>
-            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="opacity-0 group-hover:opacity-100 transition-opacity"
+            >
               <MoreVertical className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Theme Preview */}
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
-            <div 
+            <div
               className="w-4 h-4 rounded-full border"
               style={{ backgroundColor: portfolio.theme?.colors.primary }}
             />
-            <div 
+            <div
               className="w-4 h-4 rounded-full border"
               style={{ backgroundColor: portfolio.theme?.colors.secondary }}
             />
@@ -266,11 +273,13 @@ const TemplateCard: React.FC<{
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent className="p-4 space-y-3">
         <div>
           <h3 className="font-semibold">{template.name}</h3>
-          <p className="text-sm text-muted-foreground">{template.description}</p>
+          <p className="text-sm text-muted-foreground">
+            {template.description}
+          </p>
         </div>
 
         <div className="flex items-center justify-between text-sm">
@@ -301,24 +310,26 @@ const TemplateCard: React.FC<{
 export const ModernDashboard: React.FC = () => {
   const [portfolios, setPortfolios] = useState<Portfolio[]>(mockPortfolios);
   const [templates, setTemplates] = useState<Template[]>(mockTemplates);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [loading, setLoading] = useState(false);
 
   // Filter portfolios based on search
-  const filteredPortfolios = portfolios.filter(portfolio =>
-    portfolio.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    portfolio.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredPortfolios = portfolios.filter(
+    (portfolio) =>
+      portfolio.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      portfolio.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Filter templates based on category
-  const filteredTemplates = templates.filter(template =>
-    selectedCategory === 'all' || template.category === selectedCategory
+  const filteredTemplates = templates.filter(
+    (template) =>
+      selectedCategory === "all" || template.category === selectedCategory
   );
 
   const handleCreatePortfolio = () => {
     // Navigate to portfolio builder
-    window.location.href = '/dashboard/builder';
+    window.location.href = "/dashboard/builder";
   };
 
   const handleEditPortfolio = (portfolioId: string) => {
@@ -329,10 +340,10 @@ export const ModernDashboard: React.FC = () => {
     try {
       setLoading(true);
       // API call to delete portfolio
-      setPortfolios(prev => prev.filter(p => p.id !== portfolioId));
-      toast.success('Portfolio deleted successfully');
+      setPortfolios((prev) => prev.filter((p) => p.id !== portfolioId));
+      toast.success("Portfolio deleted successfully");
     } catch (error) {
-      toast.error('Failed to delete portfolio');
+      toast.error("Failed to delete portfolio");
     } finally {
       setLoading(false);
     }
@@ -342,9 +353,9 @@ export const ModernDashboard: React.FC = () => {
     if (portfolio.isPublished) {
       const url = `${window.location.origin}/portfolio/${portfolio.id}`;
       navigator.clipboard.writeText(url);
-      toast.success('Portfolio link copied to clipboard');
+      toast.success("Portfolio link copied to clipboard");
     } else {
-      toast.error('Portfolio must be published to share');
+      toast.error("Portfolio must be published to share");
     }
   };
 
@@ -355,9 +366,12 @@ export const ModernDashboard: React.FC = () => {
   // Calculate stats
   const stats = {
     totalPortfolios: portfolios.length,
-    publishedPortfolios: portfolios.filter(p => p.isPublished).length,
+    publishedPortfolios: portfolios.filter((p) => p.isPublished).length,
     totalViews: portfolios.reduce((sum, p) => sum + p.views, 0),
-    avgViews: Math.round(portfolios.reduce((sum, p) => sum + p.views, 0) / portfolios.length) || 0
+    avgViews:
+      Math.round(
+        portfolios.reduce((sum, p) => sum + p.views, 0) / portfolios.length
+      ) || 0,
   };
 
   return (
@@ -381,7 +395,9 @@ export const ModernDashboard: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Portfolios</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Portfolios
+              </CardTitle>
               <Layout className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -398,7 +414,9 @@ export const ModernDashboard: React.FC = () => {
               <Eye className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
+              <div className="text-2xl font-bold">
+                {stats.totalViews.toLocaleString()}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {stats.avgViews} avg per portfolio
               </p>
@@ -412,9 +430,7 @@ export const ModernDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">+12%</div>
-              <p className="text-xs text-muted-foreground">
-                vs last month
-              </p>
+              <p className="text-xs text-muted-foreground">vs last month</p>
             </CardContent>
           </Card>
 
@@ -425,9 +441,7 @@ export const ModernDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">4.2min</div>
-              <p className="text-xs text-muted-foreground">
-                avg time on page
-              </p>
+              <p className="text-xs text-muted-foreground">avg time on page</p>
             </CardContent>
           </Card>
         </div>
@@ -473,9 +487,13 @@ export const ModernDashboard: React.FC = () => {
             ) : (
               <div className="text-center py-12">
                 <Layout className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">No portfolios found</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  No portfolios found
+                </h3>
                 <p className="text-muted-foreground mb-4">
-                  {searchQuery ? 'Try adjusting your search terms' : 'Create your first portfolio to get started'}
+                  {searchQuery
+                    ? "Try adjusting your search terms"
+                    : "Create your first portfolio to get started"}
                 </p>
                 <Button onClick={handleCreatePortfolio}>
                   <Plus className="w-4 h-4 mr-2" />
@@ -488,17 +506,21 @@ export const ModernDashboard: React.FC = () => {
           <TabsContent value="templates" className="space-y-6">
             {/* Template Categories */}
             <div className="flex flex-wrap gap-2">
-              {['all', 'developer', 'designer', 'business', 'creative'].map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                  className="capitalize"
-                >
-                  {category}
-                </Button>
-              ))}
+              {["all", "developer", "designer", "business", "creative"].map(
+                (category) => (
+                  <Button
+                    key={category}
+                    variant={
+                      selectedCategory === category ? "default" : "outline"
+                    }
+                    size="sm"
+                    onClick={() => setSelectedCategory(category)}
+                    className="capitalize"
+                  >
+                    {category}
+                  </Button>
+                )
+              )}
             </div>
 
             {/* Templates Grid */}

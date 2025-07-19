@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useReducer, useEffect } from "react";
+import { useState, useCallback, useReducer, useEffect, useRef } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -28,11 +28,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import {
   Plus,
@@ -56,7 +59,6 @@ import {
   Star,
   CheckCircle,
   Loader2,
-  Edit,
   Settings,
   Copy,
   Image,
@@ -2272,8 +2274,9 @@ export const UnifiedPortfolioBuilder = () => {
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [showComponentSelector, setShowComponentSelector] = useState(false);
   const [selectedSectionType, setSelectedSectionType] =
-  const [isPublishing, setIsPublishing] = useState(false);
     useState<keyof typeof COMPONENT_LIBRARY>("hero");
+  const [isPublishing, setIsPublishing] = useState(false);
+
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
@@ -2326,42 +2329,45 @@ export const UnifiedPortfolioBuilder = () => {
   const handlePublish = async () => {
     try {
       setIsPublishing(true);
-      
+
       // First save the current portfolio
-      await handleSave();
-      
+      await manualSave();
+
       // Then publish it
-      const response = await fetch('/api/portfolios/publish', {
-        method: 'POST',
+      const response = await fetch("/api/portfolios/publish", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           portfolioId: portfolioData.id,
-          customSlug: portfolioData.slug || portfolioData.name.toLowerCase().replace(/\s+/g, '-')
+          customSlug:
+            portfolioData.slug ||
+            portfolioData.name.toLowerCase().replace(/\s+/g, "-"),
         }),
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to publish portfolio');
+        throw new Error("Failed to publish portfolio");
       }
-      
+
       const result = await response.json();
-      
+
       // Update portfolio data with published status
-      setPortfolioData(prev => ({
+      setPortfolioData((prev) => ({
         ...prev,
-        status: 'published',
+        status: "published",
         publishedAt: new Date(),
-        isPublished: true
+        isPublished: true,
       }));
-      
+
       // Show success message with URL
-      alert(`Portfolio published successfully! View at: ${result.portfolioUrl}`);
-      
+      alert(
+        `Portfolio published successfully! View at: ${result.portfolioUrl}`
+      );
     } catch (error) {
-      console.error('Publish error:', error);
-      alert('Failed to publish portfolio. Please try again.');
+      console.error("Publish error:", error);
+      alert("Failed to publish portfolio. Please try again.");
     } finally {
       setIsPublishing(false);
     }
@@ -2580,31 +2586,32 @@ export const UnifiedPortfolioBuilder = () => {
                 accept=".json"
                 onChange={importData}
                 className="hidden"
-            {/* Publish Button */}
-            <Button
-              onClick={handlePublish}
-              disabled={isPublishing || autoSaveState.isSaving}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              {isPublishing ? (
-                <>
-                  <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Publishing...
-                </>
-              ) : portfolioData.status === 'published' ? (
-                <>
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Update Live
-                </>
-              ) : (
-                <>
-                  <Globe className="w-4 h-4 mr-2" />
-                  Publish
-                </>
-              )}
-            </Button>
                 ref={importFileInputRef} // Use ref here
               />
+              {/* Publish Button */}
+              <Button
+                onClick={handlePublish}
+                disabled={isPublishing}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {isPublishing ? (
+                  <>
+                    <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Publishing...
+                  </>
+                ) : portfolioData.status === "published" ? (
+                  <>
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Update Live
+                  </>
+                ) : (
+                  <>
+                    <Globe className="w-4 h-4 mr-2" />
+                    Publish
+                  </>
+                )}
+              </Button>
+
               <Button
                 variant="outline"
                 size="sm"
